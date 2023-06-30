@@ -1,6 +1,4 @@
-from uradiohead.datagram import Datagram
-from uradiohead.drivers.generic import GenericDriver
-
+from uradiohead.drivers import UartDriver
 
 def main():
     driver = GenericDriver()
