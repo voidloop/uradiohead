@@ -30,15 +30,16 @@ class GenericDriver:
                 time.sleep(poll_delay)
         return False
 
-    def wait_packet_sent(self, timeout=None):
-        if timeout is None:
-            while self.mode == RH_MODE_TX:
-                pass
-        else:
-            start = time.time()
-            while (time.time() - start) < timeout:
-                if self.mode != RH_MODE_TX:
-                    return True
+    def wait_packet_sent(self):
+        while self.mode == RH_MODE_TX:
+            pass
+
+    def wait_packet_sent_timeout(self, timeout):
+        start = time.time()
+        while (time.time() - start) < timeout:
+            if self.mode != RH_MODE_TX:
+                return True
+        return False
 
     def set_header_flags(self, flags_to_set, flags_to_clear):
         self._tx_header_flags &= ~flags_to_clear
@@ -79,7 +80,7 @@ class GenericDriver:
     def available(self):
         raise NotImplemented
 
-    def send(self, buf):
+    def send(self, buf) -> bool:
         raise NotImplemented
 
     def recv(self):

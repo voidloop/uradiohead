@@ -28,7 +28,11 @@ class Datagram:
         return self._driver.send(buf)
 
     def recvfrom(self):
-        return self._driver.recv(), self.header_from, self.header_to, self.header_id, self.flags
+        buf = self._driver.recv()
+        if buf is None:
+            return None
+        else:
+            return buf, self.header_from, self.header_to, self.header_id, self.flags
 
     @property
     def header_from(self):
@@ -70,5 +74,8 @@ class Datagram:
     def wait_available_timeout(self, timeout, poll_delay=None):
         self._driver.wait_available_timeout(timeout, poll_delay)
 
-    def wait_packet_sent(self, timeout=None):
-        self._driver.wait_packet_sent(timeout)
+    def wait_packet_sent(self):
+        self._driver.wait_packet_sent()
+
+    def wait_packet_sent_timeout(self, timeout):
+        self._driver.wait_packet_sent_timeout(timeout)

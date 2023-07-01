@@ -32,11 +32,11 @@ class ReliableDatagram(Datagram):
                 flags_to_set = RH_FLAGS_RETRY
             self.set_header_flags(flags_to_set, flags_to_clear)
 
-            n_bytes = self.sendto(buf, addr)
+            self.sendto(buf, addr)
             self.wait_packet_sent()
 
             if addr == RH_BROADCAST_ADDRESS:
-                return n_bytes
+                return True
 
             if retries > 1:
                 self._retransmissions += 1
@@ -55,11 +55,11 @@ class ReliableDatagram(Datagram):
                     _, from_addr, to_addr, header_id, flags = data
                     if from_addr == addr and to_addr == self.address and \
                             flags & RH_FLAGS_ACK and header_id == sequence_number:
-                        return n_bytes
+                        return True
                     elif not (flags & RH_FLAGS_ACK) and header_id == self._seen_ids[from_addr]:
                         self._acknowledge(header_id, from_addr)
 
-        return None
+        return False
 
     def _acknowledge(self, hdr_id, addr):
         self.header_id = hdr_id
@@ -89,9 +89,7 @@ class ReliableDatagram(Datagram):
             if timeleft <= 0:
                 break
             if self.wait_available_timeout(timeleft):
-                data = self.recvfrom_ack()
-                if data:
-                    return data
+                return self.recvfrom_ack()
         return None
 
     @property

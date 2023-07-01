@@ -44,6 +44,7 @@ class UartDriver(GenericDriver):
         while not self._rx_buf_valid and self._uart.any():
             ch = self._uart.read(1)[0]
             self._handle_rx(ch)
+        return self._rx_buf_valid
 
     def _handle_rx(self, ch):
         if self._rx_state == _RX_STATE_IDLE:
@@ -116,7 +117,7 @@ class UartDriver(GenericDriver):
 
     def send(self, buf):
         if len(buf) > self.max_message_length:
-            return None
+            return False
 
         # if not self.wait_cad():
         #     return None
@@ -130,7 +131,8 @@ class UartDriver(GenericDriver):
         for ch in buf:
             self._tx_data(ch)
         self._uart.write(struct.pack('!BB', _DLE, _ETX))
-        self._uart.write(struct.pack('<H', self._tx_fcs))
+        self._uart.write(struct.pack('!H', self._tx_fcs))
+        return True
 
     def _tx_data(self, ch):
         if ch == _DLE:

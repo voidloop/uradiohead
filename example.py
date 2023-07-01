@@ -1,9 +1,12 @@
+from machine import UART
+
 from uradiohead.drivers import UartDriver
 
-def main():
-    driver = GenericDriver()
-    manager = Datagram(driver, 0x01)
+uart = UART(0, 9600)
+driver = UartDriver(uart)
 
+
+def main():
     if driver.init():
         print("Driver initialized")
     else:
