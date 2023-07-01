@@ -66,16 +66,16 @@ class Datagram:
         self._driver.set_header_flags(flags_to_set, flags_to_clear)
 
     def available(self):
-        self._driver.available()
+        return self._driver.available()
 
     def wait_available(self, poll_delay=None):
-        self._driver.wait_available(poll_delay)
+        return self._driver.wait_available(poll_delay)
 
     def wait_available_timeout(self, timeout, poll_delay=None):
-        self._driver.wait_available_timeout(timeout, poll_delay)
+        return self._driver.wait_available_timeout(timeout, poll_delay)
 
     def wait_packet_sent(self):
-        self._driver.wait_packet_sent()
+        return self._driver.wait_packet_sent()
 
     def wait_packet_sent_timeout(self, timeout):
-        self._driver.wait_packet_sent_timeout(timeout)
+        return self._driver.wait_packet_sent_timeout(timeout)

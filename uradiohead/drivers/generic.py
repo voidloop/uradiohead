@@ -1,15 +1,20 @@
 import time
 
 from ..constants import RH_BROADCAST_ADDRESS, RH_MODE_INITIALISING, RH_MODE_TX
+from ..utils import ticks_ms, ticks_diff
 
 
 class GenericDriver:
     def __init__(self):
         self.address = RH_BROADCAST_ADDRESS
-        self._tx_header_to = RH_BROADCAST_ADDRESS
         self._tx_header_from = RH_BROADCAST_ADDRESS
+        self._tx_header_to = RH_BROADCAST_ADDRESS
         self._tx_header_id = 0
         self._tx_header_flags = 0
+        self._rx_header_from = None
+        self._rx_header_to = None
+        self._rx_header_id = None
+        self._rx_header_flags = None
         self._rx_bad = 0
         self._rx_good = 0
         self._tx_good = 0
@@ -22,8 +27,8 @@ class GenericDriver:
                 time.sleep(poll_delay)
 
     def wait_available_timeout(self, timeout, poll_delay=None):
-        start = time.time()
-        while (time.time() - start) < timeout:
+        start = ticks_ms()
+        while ticks_diff(ticks_ms(), start) > timeout:
             if self.available():
                 return True
             if poll_delay:
@@ -47,7 +52,7 @@ class GenericDriver:
 
     @property
     def header_id(self):
-        return self._tx_header_id
+        return self._rx_header_id
 
     @header_id.setter
     def header_id(self, id):  # noqa
@@ -55,7 +60,7 @@ class GenericDriver:
 
     @property
     def header_to(self):
-        return self._tx_header_to
+        return self._rx_header_to
 
     @header_to.setter
     def header_to(self, addr):
@@ -63,7 +68,7 @@ class GenericDriver:
 
     @property
     def header_from(self):
-        return self._tx_header_from
+        return self._rx_header_from
 
     @header_from.setter
     def header_from(self, addr):
@@ -71,7 +76,7 @@ class GenericDriver:
 
     @property
     def flags(self):
-        return self._tx_header_flags
+        return self._rx_header_flags
 
     @staticmethod
     def init():

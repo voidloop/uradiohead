@@ -1,11 +1,11 @@
 import array
 import random
-import time
 
 from ..constants import (
     RH_DEFAULT_TIMEOUT, RH_DEFAULT_RETRIES, RH_FLAGS_NONE,
     RH_FLAGS_ACK, RH_FLAGS_RETRY, RH_BROADCAST_ADDRESS)
 from .datagram import Datagram
+from ..utils import ticks_ms
 
 
 class ReliableDatagram(Datagram):
@@ -18,7 +18,7 @@ class ReliableDatagram(Datagram):
         self._retries = RH_DEFAULT_RETRIES
 
     def sendto_wait(self, buf, addr):
-        sequence_number = self._last_sequence_number + 1
+        sequence_number = (self._last_sequence_number + 1) & 0xFF
         retries = 0
 
         while retries <= self._retries:
@@ -41,11 +41,11 @@ class ReliableDatagram(Datagram):
             if retries > 1:
                 self._retransmissions += 1
 
-            send_time = time.time()
+            send_time = ticks_ms()
             timeout = int(random.uniform(self._timeout, self._timeout * 2))
 
             while True:
-                timeleft = timeout - (time.time() - send_time)
+                timeleft = timeout - (ticks_ms() - send_time)
                 if timeleft <= 0:
                     break
                 if self.wait_available_timeout(timeleft):
@@ -83,9 +83,9 @@ class ReliableDatagram(Datagram):
         return None
 
     def recvfrom_ack_timeout(self, timeout):
-        start_time = time.time()
+        start_time = tick_ms()
         while True:
-            timeleft = timeout - (time.time() - start_time)
+            timeleft = timeout - (tick_ms() - start_time)
             if timeleft <= 0:
                 break
             if self.wait_available_timeout(timeleft):

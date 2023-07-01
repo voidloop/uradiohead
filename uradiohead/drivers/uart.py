@@ -131,6 +131,8 @@ class UartDriver(GenericDriver):
         for ch in buf:
             self._tx_data(ch)
         self._uart.write(struct.pack('!BB', _DLE, _ETX))
+        self._tx_fcs = crc_ccitt_update(self._tx_fcs, _DLE)
+        self._tx_fcs = crc_ccitt_update(self._tx_fcs, _ETX)
         self._uart.write(struct.pack('!H', self._tx_fcs))
         return True
 
